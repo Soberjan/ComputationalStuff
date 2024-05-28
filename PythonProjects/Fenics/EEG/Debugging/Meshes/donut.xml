@@ -1,0 +1,38 @@
+<dolfin nsmap="{'dolfin': 'https://fenicsproject.org/'}">
+  <mesh celltype="triangle" dim="3">
+    <vertices size="15">
+      <vertex index="0" x="-1.0" y="0.0" z="0.0" />
+      <vertex index="1" x="0.1" y="0.0" z="0.0" />
+      <vertex index="2" x="-0.1" y="0.0" z="0.0" />
+      <vertex index="3" x="0.0" y="0.1" z="0.0" />
+      <vertex index="4" x="0.0" y="-0.1" z="0.0" />
+      <vertex index="5" x="-0.6234898000282538" y="-0.7818314839277887" z="0.0" />
+      <vertex index="6" x="0.2225209390006101" y="-0.974927911030496" z="0.0" />
+      <vertex index="7" x="0.9009688713877333" y="-0.4338837318802285" z="0.0" />
+      <vertex index="8" x="0.900968864389805" y="0.4338837464115766" z="0.0" />
+      <vertex index="9" x="0.2225209286848913" y="0.9749279133849915" z="0.0" />
+      <vertex index="10" x="-0.6234898040394913" y="0.7818314807289335" z="0.0" />
+      <vertex index="11" x="-0.07071067795055576" y="0.07071067828675374" z="0.0" />
+      <vertex index="12" x="0.07071067828675374" y="0.07071067795055576" z="0.0" />
+      <vertex index="13" x="0.07071067795055576" y="-0.07071067828675374" z="0.0" />
+      <vertex index="14" x="-0.07071067828675374" y="-0.07071067795055576" z="0.0" />
+    </vertices>
+    <cells size="15">
+      <triangle index="0" v0="0" v1="2" v2="11" />
+      <triangle index="1" v0="2" v1="0" v2="14" />
+      <triangle index="2" v0="0" v1="5" v2="14" />
+      <triangle index="3" v0="10" v1="0" v2="11" />
+      <triangle index="4" v0="7" v1="8" v2="1" />
+      <triangle index="5" v0="13" v1="7" v2="1" />
+      <triangle index="6" v0="8" v1="12" v2="1" />
+      <triangle index="7" v0="9" v1="10" v2="3" />
+      <triangle index="8" v0="12" v1="9" v2="3" />
+      <triangle index="9" v0="3" v1="10" v2="11" />
+      <triangle index="10" v0="5" v1="6" v2="4" />
+      <triangle index="11" v0="5" v1="4" v2="14" />
+      <triangle index="12" v0="6" v1="13" v2="4" />
+      <triangle index="13" v0="13" v1="6" v2="7" />
+      <triangle index="14" v0="12" v1="8" v2="9" />
+    </cells>
+  </mesh>
+</dolfin>

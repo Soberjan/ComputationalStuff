@@ -1,0 +1,70 @@
+load "iovtk"
+
+func real SolveNeumannPoissonDirac(int nnodes, int t, real[int] xdelta, real[int] ydelta, real[int] cdelta, bool showPlot, bool savePlot)
+{
+    border a1(t=0, 2*pi){x=cos(t); y=sin(t); label=1;}
+    mesh Th = buildmesh(a1(nnodes));
+
+    fespace Vh(Th,P1); // P1 FE space
+    int n = Vh.ndof;
+    int n1 = n+1;
+
+    Vh uh,vh; // unknown and test function. 
+
+    //Определение Дельта-функции дирака
+    matrix D = interpolate(Vh, xdelta, ydelta);
+    Vh diracVector;
+    diracVector[] = D*cdelta;
+
+    
+    varf va(uh,vh) =                    //  definition of  the problem 
+        int2d(Th)( dx(uh)*dx(vh) + dy(uh)*dy(vh) ); //  bilinear form
+    varf vL(uh,vh)=  diracVector[];
+    varf vb(uh,vh)= int2d(Th)(1.*vh);
+
+    matrix A=va(Vh,Vh);
+
+    real[int] b(n);
+    b = vL(0,Vh);
+
+    real[int]  B = vb(0,Vh);
+
+    // the block matrix
+    matrix AA = [ [ A ,  B ] ,
+                [ B', 0 ] ] ;
+
+    real[int] bb(n+1),xx(n+1),b1(1),l(1);
+    b1=0;
+    // build the block rhs 
+    bb = [b, b1];
+    set(AA);
+    xx = AA^-1*bb; // solve the linear system
+
+    [uh[],l] = xx;  // set the value 
+    //cout << " l = " << l(0) <<  " ,  b(u,1)  =" << B'*uh[]  << endl;
+    if (showPlot)
+        plot(uh,fill=true,wait=1);
+
+    if (savePlot)
+    {
+        int[int] orderOut = [1];
+        savevtk("box/box_" + t + ".vtu", Th, uh, order=orderOut);
+    }
+}
+
+real k1 = 1, k2 = -1, k3 = 1, k4 = 1;
+real phi1 = pi/2, phi2 = pi, phi3 = -pi/2, phi4 = 0;
+real[int] xdelta = [-0.1, -0.2, 0.1, 0.2,  0.1,  0.2, -0.1, -0.2];
+real[int] ydelta = [ 0.1,  0.2, 0.1, 0.2, -0.1, -0.2, -0.1, -0.2];
+
+real tend = 20.0,  dt = 0.1;
+int numSteps = tend / dt;
+real t = 0;
+
+for (int i = 0; i <= numSteps; i++)
+{
+    real[int] cdelta = [sin(k1*t + phi1), -sin(k1*t + phi1), sin(k2*t+phi2), -sin(k2*t+phi2), sin(k3*t+phi3), -sin(k3 * t+phi3), -sin(k4*t+phi4), sin(k4*t+phi4)];
+    SolveNeumannPoissonDirac(256, i, xdelta, ydelta, cdelta, 0, 1);
+    t += dt;
+    //cout << i;
+}

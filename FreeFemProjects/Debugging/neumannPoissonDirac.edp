@@ -1,0 +1,81 @@
+load "iovtk"
+
+func real SolveNeumannPoissonDirac(int nnodes, bool showPlot, bool savePlot)
+{
+    border a1(t=0, 2*pi){x=cos(t); y=sin(t); label=1;}
+    mesh Th = buildmesh(a1(nnodes));
+
+
+    //Информация про дельта-функции
+    real[int] xdelta = [0., 0.];
+    real[int] ydelta = [-0.1, 0.1];
+    real[int] cdelta = [1., -1.];
+    
+
+    fespace Vh(Th,P2);     // P1 FE space
+    int n = Vh.ndof;
+    int n1 = n+1;
+
+    Vh uh,vh;              // unknown and test function. 
+
+    //Определение Дельта-функции дирака
+    matrix D = interpolate(Vh, xdelta, ydelta);
+    Vh diracVector;
+    diracVector[] = D*cdelta;
+
+    
+    varf va(uh,vh) =                    //  definition of  the problem 
+        int2d(Th)( dx(uh)*dx(vh) + dy(uh)*dy(vh) ); //  bilinear form
+    
+    varf vL(uh,vh)=  diracVector[];
+    varf vb(uh,vh)= int2d(Th)(1.*vh);
+
+    matrix A=va(Vh,Vh);
+
+    real[int] b(n);
+    b = vL(0,Vh);
+
+    real[int]  B = vb(0,Vh); 
+
+    // the block matrix
+    matrix AA = [ [ A ,  B ] ,
+                [ B', 0 ] ] ;
+
+    real[int]  bb(n+1),xx(n+1),b1(1),l(1);
+    b1=0;
+    // build the block rhs 
+    bb = [b, b1];
+    set(AA);
+    xx = AA^-1*bb; // solve the linear system
+
+    [uh[],l] = xx;  // set the value 
+    cout << " l = " << l(0) <<  " ,  b(u,1)  =" << B'*uh[]  << endl;
+    if (showPlot)
+        plot(uh,fill=true,wait=1);
+
+    Vh analytical = -log(sqrt((x-xdelta[0])^2 + (y-ydelta[0])^2))/(2*pi) + log(sqrt((x-xdelta[1])^2 + (y-ydelta[1])^2))/(2*pi);
+
+    if (showPlot)
+        plot(analytical,fill=true); 
+    Vh err = uh - analytical;
+    real errL2 = sqrt(abs(int2d(Th)(err^2)));
+
+    if (savePlot)
+    {
+        int[int] orderOut = [2];
+        savevtk("u.vtu", Th, uh, dataname="u", order=orderOut);
+        savevtk("analytical.vtu", Th, analytical, dataname="analytical", order=orderOut);
+    }
+
+    return errL2;
+}
+
+//cout << SolveNeumannPoissonDirac(512, 1, 0);
+
+{
+    ofstream gnu("Garbage/plot.gp");
+    for (int n = 4; n <= 256; n*=2)
+        gnu << n << " " << SolveNeumannPoissonDirac(n, 0, 0) << endl;
+}
+
+exec("echo 'plot \"Garbage/plot.gp\" w l \n pause 20 \n set term postscript \n set output \"gnuplot.eps\" \n replot \n quit' | gnuplot");

@@ -1,0 +1,3 @@
+u, v - function names
+d = diffusion
+uD = duffusion of u

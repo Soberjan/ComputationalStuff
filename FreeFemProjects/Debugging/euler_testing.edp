@@ -1,0 +1,46 @@
+func real[int] fitzhugh(int numSteps, real dt)
+{
+    real[int] u(numSteps);
+    u[0] = 1.;
+    for (int i = 1; i < numSteps; i++)
+        u[i] = u[i-1] + dt * pow(u[i-1], 3);
+
+    return u;
+}
+
+func real analytical(real t)
+{
+    return pow(-0.5/(t-0.5), 0.5);
+}
+
+real tend = 0.4,  dt = 0.5;
+int numSteps = tend / dt;
+
+int testSteps = 15;
+real[int] errorArray(testSteps);
+
+for (int i = 0; i < testSteps; i++)
+{
+    numSteps = pow(2, i+1);
+    dt = tend / numSteps;
+
+    real[int] uNumerical = fitzhugh(numSteps+1, dt);
+    real[int] uAnalytical(numSteps+1);
+
+    real errorSum = 0.0;
+    for (int j = 0; j < numSteps; j++)
+    {
+        uAnalytical[j] = analytical(dt * j);
+
+        errorSum += pow(uAnalytical[j] - uNumerical[j], 2);
+    }
+    errorArray[i] = pow(errorSum, 0.5);
+}
+
+{
+    ofstream gnu("euler_testing/plot.gp");
+    for (int i = 1; i <= testSteps; i++)
+        gnu << pow(2, i) << " " << errorArray[i-1] << endl;
+}
+
+// exec("echo 'plot \"euler_tesing/plot.gp\" w l \n pause 20 \n set term postscript \n set output \"gnuplot.eps\" \n replot \n quit' | gnuplot");

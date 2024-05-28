@@ -1,0 +1,7 @@
+#FitzhHugh-Nagumo Equations
+init x=0.5 y=0.25
+par a=0.8 b=0.4 c=3.0 z=0.0
+
+x'=c*(y+x-x^3/3+z)
+y'=-(x-a+b*y)/c
+done

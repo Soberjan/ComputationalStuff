@@ -1,0 +1,24 @@
+func real[int] fitzhugh(int numSteps, real dt, real u0, real w0, real R, real Iext, real tau, real a, real b)
+{
+    real[int] u(numSteps), w(numSteps);
+    u[0] = u0;
+    w[0] = w0;
+
+    for (int i = 1; i < numSteps; i++)
+    {
+        u[i] = u[i-1] + dt * (u[i-1] - pow(u[i-1], 3)/3 - w[i-1] + R * Iext);
+        w[i] = w[i-1] + dt/tau * (u[i-1] + a - b * w[i-1]);
+    }
+    // как возвращать два массива?
+    return u;
+}
+
+real tend = 50.0,  dt = 0.1;
+int numSteps = tend / dt;
+
+real u0 = 1., w0 = 1., R = 0.1, Iext = 0.5, tau = 12.5, a =  0.7, b = 0.01;
+real[int] solU(numSteps);
+solU = fitzhugh(numSteps, dt, u0, w0, R, Iext, tau, a, b);
+
+for (int i = 0; i < numSteps; i++)
+    cout << solU << " ";

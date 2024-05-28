@@ -1,0 +1,27 @@
+// load "msh3"
+
+// border a(t=0, 2*pi){x=cos(t); y=sin(t); label=1;}
+// border b(t=0, 2*pi){x=0.3*cos(t); y=0.3*sin(t); label=2;}
+// mesh circleHole = buildmesh(a(50) + b(-30));
+
+// savemesh(circleHole, "Meshes/circleHole.mesh");
+
+// mesh Mesh = readmesh("Meshes/circleHole.mesh");
+
+real x0 = 0, y0 = 0, x1 = 1, y1 = 1;
+int n = 10;
+border Gamma1(t=0,1) {x=x0+(x1-x0)*t; y=y0; label=1;}
+border Gamma2(t=0,1) {x=x1; y=y0+(y1-y0)*t; label=1;}
+border Gamma3(t=0,1) {x=x1-(x1-x0)*t; y=y1; label=1;}
+border Gamma4(t=0,1) {x=x0; y=y1-(y1-y0)*t; label=1;}
+real x00 = 0.49, y00 = 0.49, x11 = 0.51, y11 = 0.51;
+int m = 2;
+border Gamma5(t=0,1) {x=x00+(x11-x00)*t; y=y00; label=1;}
+border Gamma6(t=0,1) {x=x11; y=y00+(y11-y00)*t; label=1;}
+border Gamma7(t=0,1) {x=x11-(x11-x00)*t; y=y11; label=1;}
+border Gamma8(t=0,1) {x=x00; y=y11-(y11-y00)*t; label=1;}
+func boxadapt = (x > 0.49) * (y > 0.49) * (x < 0.51) * (y < 0.51);
+mesh box = buildmesh(Gamma1(n) + Gamma2(n) + Gamma3(n) + Gamma4(n));
+box = adaptmesh(box, boxadapt);
+
+plot(box);

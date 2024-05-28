@@ -1,0 +1,40 @@
+func real SolvePoisson(int n)
+{
+    border Gamma1(t=0,1) {x=t; y=0; label=1;}
+    border Gamma2(t=0,1) {x=1; y=t; label=1;}
+    border Gamma3(t=0,1) {x=1-t; y=1; label=1;}
+    border Gamma4(t=0,1) {x=0; y=1-t; label=1;}
+    mesh box = buildmesh(Gamma1(n) + Gamma2(n) + Gamma3(n) + Gamma4(n));
+
+    //Разобраться, почему квадрат из коробки криво работает
+    // mesh box = square(n, n);
+
+    fespace SpaceP1(box, P1);
+    SpaceP1 u, v;
+
+    func f = -6;
+
+    solve Poisson(u, v)
+        = int2d(box) (dx(u)*dx(v) + dy(u)*dy(v))
+        - int2d(box) (f * v)
+        + on(1, u=1+x^2+2*y^2);
+        //+ on(1,2,3,4, u=1+x^2+2*y^2);
+
+    plot(u, fill=true);
+
+    SpaceP1 analytical = 1+x^2+2*y^2;
+    plot(analytical, fill=true);
+    SpaceP1 err = u - analytical;
+    real errL2 = sqrt(int2d(box)(err^2));
+
+    return errL2;
+}
+SolvePoisson(256);
+
+// {
+//     ofstream gnu("Garbage/plot.gp");
+//     for (int n = 2; n <= 256; n*=2)
+//         gnu << n << " " << SolvePoisson(n) << endl;
+// }
+
+// exec("echo 'plot \"plot.gp\" w l \n pause 20 \n set term postscript \n set output \"gnuplot.eps\" \n replot \n quit' | gnuplot");
